@@ -1,0 +1,190 @@
+---
+title: "Исследование сетевых параметров публичных DNS серверов"
+output: html_document
+---
+
+
+## Цель работы
+
+Проанализировать сетевые параметры публичных DNS серверов, сделать мотивированный вывод о предпочтительных серверах
+
+## Используемое ПО
+1. Rstudio IDE
+2. tracert/traceroute
+3. ping
+4. whois
+
+## Варианты решения задачи
+1. Решить задачу на Windows (с помощью утилиты tracert)
+1. Решить задачу на Linux (с помощью утилиты traceroute)
+
+## Ход работы
+
+1. По исследуемым серверам собрать следующие данные:
+  - маршрут
+  - местоположение каждого узла маршрута к DNS-серверу
+  - организацию, владеющую каждым узлом маршрута к DNS-серверу
+  - среднюю RTT (round trip time) к DNS-серверу
+2. Выделить те узлы маршрута, которые вносят наибольшую временную задержку при передаче
+3. Сравнить сетевые параметры DNS серверов
+
+## Исследуемые провайдеры DNS
+
+1. Google Public DNS
+2. Cloudflare DNS
+3. OpenDNS
+4. DNS вашего провайдера
+
+## Содержание лабораторной работы:
+### 1.Google Public DNS - 8.8.8.8
+Google Public DNS — интернет-сервис корпорации Google.
+
+Для начала определим доступность адреса
+```{r cache=TRUE} 
+system("ping 8.8.8.8",timeout = 5 , intern = TRUE)
+```
+Теперь определим маршрут
+```{r cache=TRUE} 
+system("tracert 8.8.8.8", intern = TRUE)
+```
+
+### Информационная таблица:
+| № |Первый ping|Второй ping|Третий ping|Узел|Месторасположение| Организация| Средняя RTT|
+|:-:|:---------:|:---------:|:---------:|:--:|:---------------:|:----------:|:----------:|
+| 1|*     | *   | *   |  Request timed out.|
+| 2| 3 ms | 3 ms| 3 ms|  10.133.0.1                                           |USA, Лос-Анджелес| Internet Assigned Numbers Authority |3|
+| 3| 4 ms | 4 ms| 4 ms|  mpts-ss-51.msk.mts-internet.net [212.188.1.6]        |Москва| MTS / former ZAO MTU-Intel's p2p Network|4|
+| 4| 4 ms | 4 ms| 4 ms|  mag9-cr01-be12.51.msk.mts-internet.net [212.188.1.5] |Москва| MTS / former ZAO MTU-Intel's p2p Network|4|
+| 5| 4 ms | 4 ms| 4 ms|  72.14.223.72      |USA, Mountain View |Google LLC|4|
+| 6| 6 ms | 5 ms| 5 ms|  108.170.250.34    |USA, Mountain View |Google LLC|5.3|
+| 7| 18 ms|18 ms|18 ms|  216.239.50.46     |USA|Google LLC|18|
+| 8| 19 ms|18 ms|18 ms|  216.239.54.50     |USA|Google LLC|18.3|
+| 9|*     | *   | *   |  Request timed out.|
+| 10|*    | *   | *   |  Request timed out.|
+| 11|*    | *   | *   |  Request timed out.|
+| 12|*    | *   | *   |  Request timed out.|
+| 13|*    | *   | *   |  Request timed out.|
+| 14|*    | *   | *   |  Request timed out.|
+| 15|*    | *   | *   |  Request timed out.|
+| 16|*    | *   | *   |  Request timed out.|
+| 17|*    | *   | *   |  Request timed out.|
+| 18|*    | *   | *   |  Request timed out.|
+| 19|*    | *   | *   |  Request timed out.|
+| 20|19 ms|18 ms|24 ms|  dns.google [8.8.8.8]|USA, Нью-Йорк|Google LLC|20.3|
+
+
+### 2.Cloudflare DNS - 1.1.1.1
+Cloudflare -предоставляют защиту для он-лайн сервисов от DDoS-атак путём фильтрации паразитного трафика на своих прокси-серверах.
+
+Для начала определим доступность адреса
+```{r cache=TRUE} 
+system("ping 1.1.1.1",timeout = 5 , intern = TRUE)
+```
+Теперь определим маршрут
+```{r cache=TRUE} 
+system("tracert 1.1.1.1", intern = TRUE)
+```
+
+### Информационная таблица:
+| № |Первый ping|Второй ping|Третий ping|Узел|Месторасположение| Организация| Средняя RTT|
+|:-:|:---------:|:---------:|:---------:|:--:|:---------------:|:----------:|:----------:|
+|  1|*    | *     | *    |  Request timed out.|
+|  2| 3 ms| 3 ms  | 2 ms | 10.133.0.1                                           |USA, Лос-Анджелес| Internet Assigned Numbers Authority |2.6|
+|  3| 4 ms| 4 ms  | 4 ms | mpts-ss-51.msk.mts-internet.net [212.188.1.6]        | Москва| MTS / former ZAO MTU-Intel's p2p Network|4|
+|  4| 4 ms| 3 ms  | 4 ms | mag9-cr01-be12.51.msk.mts-internet.net [212.188.1.5] | Москва| MTS / former ZAO MTU-Intel's p2p Network|3.6|
+|  5| 5 ms| 5 ms  | 5 ms | m9-cr04-be8.77.msk.mts-internet.net [212.188.54.213] | Москва| MTS / former ZAO MTU-Intel's p2p Network|5|
+|  6| 4 ms| 4 ms  | 4 ms | m9-cr05-ae3.77.msk.mts-internet.net [195.34.53.185]  | Москва|MTS / former ZAO MTU-Intel's p2p Network|4|
+|  7| 31 ms|23 ms | 25 ms| 172.68.8.254                                         | Ukraine, Киев |Cloudflare, Inc.|26.3|
+|  8| 31 ms|29 ms | 29 ms| one.one.one.one [1.1.1.1]                            | Australia, Research| 	APNIC and Cloudflare DNS Resolver project| 29.6|
+
+
+### 3.OpenDNS - 208.67.220.220
+OpenDNS — интернет-служба, предоставляющая общедоступные DNS-серверы.
+
+Для начала определим доступность адреса
+```{r cache=TRUE} 
+system("ping 208.67.220.220",timeout = 5 , intern = TRUE)
+```
+Теперь определим маршрут
+```{r cache=TRUE} 
+system("tracert 208.67.220.220", intern = TRUE)
+```
+
+### Информационная таблица:
+| № |Первый ping|Второй ping|Третий ping|Узел|Месторасположение| Организация| Средняя RTT|
+|:-:|:---------:|:---------:|:---------:|:--:|:---------------:|:----------:|:----------:|
+| 1 |*      | *     | *     | Request timed out.|
+|  2| 3 ms  | 3 ms  | 3 ms  | 10.133.0.1                                                 |USA, Лос-Анджелес| Internet Assigned Numbers Authority |3|
+|  3| 4 ms  | 4 ms  | 4 ms  | mpts-ss-51.msk.mts-internet.net [212.188.1.6]              |Москва|MTS, former ZAO MTU-Intel's p2p Network|4|
+|  4| 4 ms  | 4 ms  | 4 ms  | mag9-cr01-be12.51.msk.mts-internet.net [212.188.1.5]       |Москва|MTS, former ZAO MTU-Intel's p2p Network|4|
+|  5| 4 ms  | 4 ms  | 4 ms  | a197-cr04-be10.77.msk.mts-internet.net [195.34.50.73]      |Москва|MTS PJSC |4|
+|  6| 109 ms| 109 ms| 109 ms| che-cr02-ae1.63.sam.mts-internet.net [212.188.29.26]       |Москва|MTS, former ZAO MTU-Intel's p2p Network|109|
+|  7| 35 ms | 35 ms | 34 ms | psshag-cr01-ae10.63.chel.mts-internet.net [212.188.42.130] |Москва|MTS, former ZAO MTU-Intel's p2p network|34.6|
+|  8| 54 ms | 70 ms | 54 ms | bhm-cr01-ae12.74.nsk.mts-internet.net [195.34.50.154]      |Москва|MTS PJSC|59.3|
+|  9| 109 ms| 109 ms| 109 ms| sem275-cr01-ae5.24.krsk.mts-internet.net [212.188.29.10]   |Москва|MTS, former ZAO MTU-Intel's p2p Network|109|
+| 10| 109 ms| 109 ms| 109 ms| akd-cr01-ae8.38.irk.mts-internet.net [212.188.29.138]      |Москва|MTS, former ZAO MTU-Intel's p2p Network|109|
+| 11| 109 ms| 110 ms| 109 ms| psskv-cr01-ae6.28.skv.mts-internet.net [212.188.28.213]    |Москва|MTS, former ZAO MTU-Intel's p2p Network|109.3|
+| 12| 108 ms| 108 ms| 109 ms| teat-cr01-ae0.28.blag.mts-internet.net [212.188.2.106]     |Москва|MTS OJSC, former ZAO MTU-Intel's p2p Network |108.3|
+| 13| *     | *     | *     | Request timed out.|
+| 14| 240 ms| 240 ms| 241 ms| resolver1.opendns.com [208.67.220.220]                     |USA, San Francisco |Cisco OpenDNS, LLC |240.3|
+
+
+### 4.MGTS - 62.112.96.14
+
+Для начала определим доступность адреса
+```{r cache=TRUE} 
+system("ping 62.112.96.14",timeout = 5 , intern = TRUE)
+```
+Теперь определим маршрут
+```{r cache=TRUE} 
+system("tracert 62.112.96.14", intern = TRUE)
+```
+
+### Информационная таблица:
+| № |Первый ping|Второй ping|Третий ping|Узел|Месторасположение| Организация| Средняя RTT|
+|:-:|:---------:|:---------:|:---------:|:--:|:---------------:|:----------:|:----------:|
+| 1 |*    | *   | *   |  Request timed out.|
+|  2| 2 ms| 2 ms| 3 ms|  10.133.0.1        | USA, Лос-Анджелес| Internet Assigned Numbers Authority |2.3|
+|  3| 4 ms| 4 ms| 4 ms|  10.215.240.105    | USA, Лос-Анджелес| Internet Assigned Numbers Authority |4|
+|  4| *   | *   | *   |  Request timed out.|
+|  5| 5 ms| 5 ms|15 ms|  10.215.240.109    | USA, Лос-Анджелес| Internet Assigned Numbers Authority |8.3|
+|  6| 6 ms| 4 ms| 4 ms|  62.112.96.13      | Москва | MGTS adsl-rfc Client |4.6|
+|  7| 4 ms| 4 ms| 4 ms|  62.112.96.14      | Москва | MGTS adsl-rfc Client |4|
+
+
+```{r, echo=FALSE}
+xt <- c(0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240)
+yh <- c(0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12)
+xx <- c(3,4,4,4,5.3,18,18.3,20.3)
+yy <- c(1,2,3,4,5,6,7,8)
+xxx <- c(2.6,4,3.6,5,4,26.3,29.6)
+yyy <- c(1,2,3,4,5,6,7)
+xxxx <- c(3,4,4,4,109,34.6,59.3,109,109,109.3,108.3,240.3)
+yyyy <- c(1,2,3,4,5,6,7,8,9,10,11,12)
+xxxxx <- c(2.3,4,8.3,4.6,4)
+yyyyy <- c(1,2,3,4,5)
+plot(yh,xt, main = "Сравнительная диаграмма RTT к серверам", xlab = "Шаг", ylab = "RTT",type = "n")
+points(yy,xx,col = "red")
+lines(yy,xx,col = "red")
+points(yyy,xxx,col = "green")
+lines(yyy,xxx,col = "green")
+points(yyyy,xxxx,col = "blue")
+lines(yyyy,xxxx,col = "blue")
+points(yyyyy,xxxxx,col = "purple ")
+lines(yyyyy,xxxxx,col = "purple ")
+```
+
+1. Цветовое обозначение:
+  - Красный - Google Public DNS
+  - Зеленый - Cloudflare DNS
+  - Синий - OpenDNS
+  - Фиолетовый - MGTS
+
+## Оценка результата
+
+На графике видно, что больше всего времени потребовалось при обращении к OpenDNS, меньше всего - к MGTS.
+
+## Вывод
+
+DNS важна для работы Интернета, так как для соединения с узлом необходима информация о его IP-адресе, а для людей проще запоминать буквенные (обычно осмысленные) адреса, чем последовательность цифр IP-адреса.
+В данной лабораторной работе мы рассмотрели параметры Google Public DNS, Cloudflare DNS, OpenDNS, MGTS.
